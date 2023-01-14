@@ -90,13 +90,13 @@ contains
         integer          :: inn, inc, jnn, jnc, ine, np
         double precision :: params(np)
 
-        open(unit=10, file='./params/params.txt')
+        open(unit=10, file='./params/params.txt', action="write")
         do ine = 1, np
             write(10, '(e15.8)') params(ine)
         enddo
         close(10)
 
-        open(unit=10, file='./params/IsingHamiltonian_field.txt')
+        open(unit=10, file='./params/IsingHamiltonian_field.txt', action="write")
         do inn = 1, nSites
             do inc = 1, nStates
                 write(10, '(e15.8)') field(inn,inc)  
@@ -104,7 +104,7 @@ contains
         enddo
         close(10)
 
-        open(unit=10, file='./params/IsingHamiltonian_coupling.txt')
+        open(unit=10, file='./params/IsingHamiltonian_coupling.txt', action="write")
         do inn = 1, nSites
             do jnn = inn+1, nSites
                 do inc = 1, nStates

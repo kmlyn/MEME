@@ -4,11 +4,14 @@ Program main
     Use mc_sampling
     Use hamiltonian
     Use ensemble_average
+    use mpi 
 
     implicit none
-    include 'mpif.h'
+    ! the line below generates strange runtime issues with MPI_Bcast (not matching data types)
+    ! include 'mpif.h'
     
     character*500:: infile, outfile
+
     integer   :: rseed
     integer*4 :: nMCIter, recordFreq
     integer*4 :: inn, inc, imc, ine, iter
@@ -19,10 +22,10 @@ Program main
                                      etot(:), dx_save(:)
 
 
-    double precision :: rnum, diff, learning_rate
+    double precision :: rnum, diff, learning_rate, dummy
     
     double precision :: temp_min, temp_max, dT, deltaU, deltaBeta, etmp, ratio
-    integer          :: rpl_targetT, accept, naccept, ntrial, irpl, irpl_start
+    integer          :: rpl_targetT, accept, naccept, ntrial, irpl, irpl_start, ioerr
 
     ! MPI stuff
     integer          :: ierr, proc_id, no_procs
@@ -37,7 +40,7 @@ Program main
     if (proc_id .eq. 0) then 
         ! read input file
         infile = 'input.txt'
-        open(unit=10, file=trim(infile))
+        open(unit=10, file=trim(infile), action="read")
         read(10, *) nStates
         read(10, *) nSites
         read(10, *) nreplica
@@ -53,11 +56,19 @@ Program main
         nExpConstr = nSites*nStates + nSites*(nSites-1)/2*nStates*nStates
 
         allocate(expConstr(nExpConstr))
-        open(unit=10,file='experimental_constraints.txt')
+        open(unit=10,file='experimental_constraints.txt', action="read")
         do ine = 1, nExpConstr
             read(10, *) expConstr(ine)
         enddo
+        ! check if there is anything more in the file (sanity check) – should return non-zero like EOF
+        read(10, *, iostat=ioerr) dummy
+        
         close(10)
+
+        if(ioerr == 0) then
+            print *, "The file experimental_constraints.txt contains more lines than expected, aborting..."
+            call MPI_Abort(MPI_COMM_WORLD, ioerr, ierr) 
+        endif
 
         buf_dble(1) = temp_min
         buf_dble(2) = temp_max
@@ -109,6 +120,9 @@ Program main
     allocate(temp(nReplica))
     allocate(beta(nReplica))
     dT = (temp_max-temp_min)/(nreplica-1)
+
+    ! sanity checks added to prevent segfaults later
+    rpl_targetT = nReplica + 1
     do irpl = 1, nReplica
         temp(irpl) = temp_min + (irpl-1)*dT
         beta(irpl) = 1.0 / temp(irpl) / kB
@@ -116,6 +130,11 @@ Program main
             rpl_targetT = irpl
         endif
     enddo
+
+    if(rpl_targetT > nReplica) then
+        print *, "ERROR: Please adjust the number of replicas so that there is one at temperature of 1.0"
+        CALL abort
+    endif
 
     if (proc_id .eq. 0)  then
         open(unit=10, file='log.txt', position='append')

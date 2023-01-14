@@ -1,14 +1,23 @@
 program init
     implicit none
+    character*500:: infile
     integer*4 :: inn, inc, jnn, jnc, nSites, nStates
     real:: p
 
-    nSites = 287
-    nStates = 21
+    ! read nStates and nSites from input file
+    infile = 'input.txt'
+    open(unit=10, file=trim(infile), action="read")
+    read(10, *) nStates
+    read(10, *) nSites
+    close(10)
 
-    open(1, file='../experimental_constraints.txt')
+    print *, "Please verify if the data below match your dataset"
+    print *, "nStates = ", nStates
+    print *, "nSites = ", nSites
 
-    open(10, file='IsingHamiltonian_field.txt')
+    open(1, file='experimental_constraints.txt', action="read")
+
+    open(10, file='./params/IsingHamiltonian_field.txt', action="write")
     do inn = 1, nSites
         do inc = 1, nStates
             read(1, *) p
@@ -17,7 +26,10 @@ program init
     enddo
     close(10)
 
-    open(10, file='IsingHamiltonian_coupling.txt')
+    ! closing experimental constraints file
+    close(1)
+
+    open(10, file='./params/IsingHamiltonian_coupling.txt', action="write")
     do inn = 1, nSites
         do jnn = inn+1, nSites
             do inc = 1, nStates
@@ -28,4 +40,5 @@ program init
         enddo
     enddo
     close(10)
+
 end

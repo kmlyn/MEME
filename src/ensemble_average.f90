@@ -78,7 +78,7 @@ contains
 
         integer*4        :: ine
 
-        open(unit=10, file=trim(outfile))
+        open(unit=10, file=trim(outfile), action="write")
         do ine = 1, nExpConstr
             write(10, '(e15.8)') ensembleAvg(ine)
         enddo
