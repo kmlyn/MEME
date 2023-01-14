@@ -15,7 +15,7 @@ statistics from MSA (experimental_constraints.txt; single-body frequencies are f
 parameters of the MaxEnt model (IsingHamiltonian_field.txt, IsingHamiltonian_coupling.txt in the params subfolder), the MaxEnt energy for mutated sequences (msa_mut_MaxEnt_energy.txt)
  
 ### Modules
-init.f90 (initialize parameters, in the params subfolder), global.f90 (global variables used in all modules), hamiltonian.f90 (calculate configuration energies), mc_sampling.f90 (MC simulation module), ensemble_average.f90 (module to calculate statistics from simulated MSA), main.f90 (main module for the parameterization), energy.f90 (MaxEnt energy calculation given the mutated sequences). Due to size limit, the intermediate results for a specific example are not provided.
+init.f90 (initialize parameters), global.f90 (global variables used in all modules), hamiltonian.f90 (calculate configuration energies), mc_sampling.f90 (MC simulation module), ensemble_average.f90 (module to calculate statistics from simulated MSA), main.f90 (main module for the parameterization), energy.f90 (MaxEnt energy calculation given the mutated sequences). Due to size limit, the intermediate results for a specific example are not provided.
 
 ### How to use
-'gfortran init.f90' (in the params subfolder. It can also further optimize parameters obtained from PLL approximation); 'bash sub.sh'; './energy'
+
